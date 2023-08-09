@@ -5,7 +5,7 @@ set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 
 project(helloworld VERSION ${PROJECT_VESRION})
 
-find_package(GTest)
+include(GoogleTest)
 
 configure_file(version.h.in version.h)
 

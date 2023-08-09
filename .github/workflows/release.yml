@@ -17,19 +17,6 @@ jobs:
         with:
           submodules: true
       - run: sudo apt-get update && sudo apt-get install googletest -y
-      - run: sudo apt-get install libgtest-dev
-      - run: cd /usr/src/googletest/googletest
-      - run: sudo mkdir build
-      - run: cd build
-      - run: sudo cmake ..
-      - run: sudo make
-      - run: sudo cp libgtest* /usr/lib/
-      - run: cd ..
-      - run: sudo rm -rf build
-      - run: sudo mkdir /usr/local/lib/googletest
-      - run: sudo ln -s /usr/lib/libgtest.a /usr/local/lib/googletest/libgtest.a
-      - run: sudo ln -s /usr/lib/libgtest_main.a /usr/local/lib/googletest/libgtest_main.a
-
       - run: cmake . -DPATCH_VERSION=${{ github.run_number }}
       - run: cmake --build .
       - run: cmake --build . --target test
