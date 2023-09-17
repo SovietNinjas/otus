@@ -1,8 +1,27 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
+
+#include "ip_address.h"
+
+std::map<std::string_view, std::size_t> GetStringCount(std::string_view line) {
+    std::map<std::string_view, std::size_t> res;
+
+    auto pos = line.find_first_not_of(' ');
+    line.remove_prefix(pos);
+    do {
+        pos = line.find_first_of(' ');
+        ++res[line.substr(0, pos)];
+        pos = line.find_first_not_of(' ', pos);
+        line.remove_prefix(pos);
+
+    } while (pos != line.npos);
+
+    return res;
+}
 
 // ("",  '.') -> [""]
 // ("11", '.') -> ["11"]
@@ -10,14 +29,12 @@
 // ("11.", '.') -> ["11", ""]
 // (".11", '.') -> ["", "11"]
 // ("11.22", '.') -> ["11", "22"]
-std::vector<std::string> split(const std::string &str, char d)
-{
+std::vector<std::string> split(const std::string &str, char d) {
     std::vector<std::string> r;
 
     std::string::size_type start = 0;
     std::string::size_type stop = str.find_first_of(d);
-    while(stop != std::string::npos)
-    {
+    while (stop != std::string::npos) {
         r.push_back(str.substr(start, stop - start));
 
         start = stop + 1;
@@ -29,28 +46,37 @@ std::vector<std::string> split(const std::string &str, char d)
     return r;
 }
 
-int main(int argc, char const *argv[])
-{
-    try
-    {
-        std::vector<std::vector<std::string> > ip_pool;
+int main([[maybe_unused]] int argc, [[maybe_unused]] char const *argv[]) {
+    //    project_info::printProjectInfo();
 
-        for(std::string line; std::getline(std::cin, line);)
-        {
+    //    for (int i = 0; i < argc; ++i) {
+    //        std::cout << argv[i] << std::endl;
+    //    }
+
+    //    for (std::string line; std::getline(std::cin, line);) {
+    //        std::string_view out(line);
+    //        if (auto pos = out.find_first_of('\t'); pos != out.npos) {
+    //            out.remove_suffix(out.size() - pos);
+    //        }
+    //        std::cout << out << std::endl;
+    //    }
+
+    //    return 0;
+
+    try {
+        std::vector<std::vector<std::string>> ip_pool;
+
+        for (std::string line; std::getline(std::cin, line);) {
             std::vector<std::string> v = split(line, '\t');
             ip_pool.push_back(split(v.at(0), '.'));
         }
 
         // TODO reverse lexicographically sort
 
-        for(std::vector<std::vector<std::string> >::const_iterator ip = ip_pool.cbegin(); ip != ip_pool.cend(); ++ip)
-        {
-            for(std::vector<std::string>::const_iterator ip_part = ip->cbegin(); ip_part != ip->cend(); ++ip_part)
-            {
-                if (ip_part != ip->cbegin())
-                {
+        for (std::vector<std::vector<std::string>>::const_iterator ip = ip_pool.cbegin(); ip != ip_pool.cend(); ++ip) {
+            for (std::vector<std::string>::const_iterator ip_part = ip->cbegin(); ip_part != ip->cend(); ++ip_part) {
+                if (ip_part != ip->cbegin()) {
                     std::cout << ".";
-
                 }
                 std::cout << *ip_part;
             }
@@ -119,9 +145,8 @@ int main(int argc, char const *argv[])
         // 46.49.43.85
         // 39.46.86.85
         // 5.189.203.46
-    }
-    catch(const std::exception &e)
-    {
+
+    } catch (const std::exception &e) {
         std::cerr << e.what() << std::endl;
     }
 

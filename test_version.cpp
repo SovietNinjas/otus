@@ -10,5 +10,5 @@ int main(int argc, char **argv) {
 }
 
 TEST(SuiteName, Name) {
-    EXPECT_GT(version(), 0);
+    EXPECT_GT(project_info::version(), 0);
 }
