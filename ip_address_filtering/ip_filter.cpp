@@ -1,6 +1,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <iostream>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -22,29 +23,71 @@
 //    return res;
 //}
 
-int main([[maybe_unused]] int argc, [[maybe_unused]] char const *argv[]) {
+template <typename T>
+void printRng(const T& buff) {
+    for (const auto& i : buff) {
+        std::cout << i << std::endl;
+    }
+}
+
+std::ostream& operator<<(std::ostream& os, IpAddress addr) {
+    for (auto pos = cbegin(addr.asNumeric_), end = cend(addr.asNumeric_); pos != end; ++pos) {
+        if (pos != cbegin(addr.asNumeric_)) {
+            os << '.';
+        }
+        os << static_cast<int>(*pos);
+    }
+    return os;
+}
+
+int main([[maybe_unused]] int argc, [[maybe_unused]] char const* argv[]) {
     //    project_info::printProjectInfo();
 
+    auto reverseIpComp = [](IpAddress lhs, IpAddress rhs) { return lhs.asNumeric_ > rhs.asNumeric_; };
+
+    std::set<IpAddress, decltype(reverseIpComp)> ipAddresses;
+    std::vector<IpAddress> ipAddressesFistByte1;
+    std::vector<IpAddress> ipAddressesFirstByte46Second70;
+    std::vector<IpAddress> ipAddressesAnyByte46;
+
     try {
-        std::vector<std::vector<std::string>> ip_pool;
-
+        //        size_t count = 0;
         for (std::string line; std::getline(std::cin, line);) {
-            auto str = line.substr(0, line.find_first_of('\t'));
-            IpAddress ip(std::move(str));
+            std::string_view ipAddr(line);
+            ipAddresses.emplace(ipAddr.substr(0, line.find_first_of('\t')));
+            // if (++count > 3) break;
         }
-        return 0;
 
-        // TODO reverse lexicographically sort
-
-        for (std::vector<std::vector<std::string>>::const_iterator ip = ip_pool.cbegin(); ip != ip_pool.cend(); ++ip) {
-            for (std::vector<std::string>::const_iterator ip_part = ip->cbegin(); ip_part != ip->cend(); ++ip_part) {
-                if (ip_part != ip->cbegin()) {
-                    std::cout << ".";
+        for (const auto& ip : ipAddresses) {
+            for (auto pos = cbegin(ip.asNumeric_), end = cend(ip.asNumeric_); pos != end; ++pos) {
+                if (pos != cbegin(ip.asNumeric_)) {
+                    std::cout << '.';
+                    if (*pos == 46) {
+                        ipAddressesAnyByte46.push_back(ip);
+                    }
+                } else {
+                    if (*pos == 46) {
+                        ipAddressesAnyByte46.push_back(ip);
+                        if (pos[1] == 70) {
+                            ipAddressesFirstByte46Second70.push_back(ip);
+                        }
+                    } else if (*pos == 1) {
+                        ipAddressesFistByte1.push_back(ip);
+                    }
                 }
-                std::cout << *ip_part;
+                std::cout << static_cast<int>(*pos);
             }
             std::cout << std::endl;
         }
+
+//        std::cout << "===================================" << std::endl;
+        printRng(ipAddressesFistByte1);
+//        std::cout << "===================================" << std::endl;
+        printRng(ipAddressesFirstByte46Second70);
+//        std::cout << "===================================" << std::endl;
+        printRng(ipAddressesAnyByte46);
+
+        return 0;
 
         // 222.173.235.246
         // 222.130.177.64
@@ -109,7 +152,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char const *argv[]) {
         // 39.46.86.85
         // 5.189.203.46
 
-    } catch (const std::exception &e) {
+    } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
     }
 

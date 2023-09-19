@@ -6,13 +6,10 @@
 
 class IpAddress {
    public:
-    IpAddress(std::string&& str);
     static constexpr std::size_t kIpSize = 4;
     using IpBuff = std::array<uint8_t, kIpSize>;
-    void set(std::string_view strV);
-    inline std::string_view get() const { return asString_; }
 
-   private:
+    IpAddress(std::string_view str);
+    void set(std::string_view strV);
     IpBuff asNumeric_{};
-    std::string asString_{};
 };
