@@ -10,7 +10,7 @@
 template <typename T>
 void printRng(const T& buff) {
     for (const auto& i : buff) {
-        std::cout << i << std::endl;
+        std::cout << i << '\n';
     }
 }
 
@@ -35,11 +35,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char const* argv[]) {
     std::vector<IpAddress> ipAddressesAnyByte46;
 
     try {
-        //        size_t count = 0;
         for (std::string line; std::getline(std::cin, line);) {
             std::string_view ipAddr(line);
             ipAddresses.emplace(ipAddr.substr(0, line.find_first_of('\t')));
-            // if (++count > 3) break;
         }
 
         for (const auto& ip : ipAddresses) {
@@ -61,7 +59,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char const* argv[]) {
                 }
                 std::cout << static_cast<int>(*pos);
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
 
         printRng(ipAddressesFistByte1);
