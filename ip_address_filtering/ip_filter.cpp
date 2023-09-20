@@ -7,22 +7,6 @@
 
 #include "ip_address.h"
 
-// std::vector<std::string_view, std::size_t> getStringCount(std::string_view line) {
-//     std::map<std::string_view, std::size_t> res;
-
-//    auto pos = line.find_first_not_of(' ');
-//    line.remove_prefix(pos);
-//    do {
-//        pos = line.find_first_of(' ');
-//        ++res[line.substr(0, pos)];
-//        pos = line.find_first_not_of(' ', pos);
-//        line.remove_prefix(pos);
-
-//    } while (pos != line.npos);
-
-//    return res;
-//}
-
 template <typename T>
 void printRng(const T& buff) {
     for (const auto& i : buff) {
@@ -45,7 +29,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char const* argv[]) {
 
     auto reverseIpComp = [](IpAddress lhs, IpAddress rhs) { return lhs.asNumeric_ > rhs.asNumeric_; };
 
-    std::set<IpAddress, decltype(reverseIpComp)> ipAddresses;
+    std::multiset<IpAddress, decltype(reverseIpComp)> ipAddresses;
     std::vector<IpAddress> ipAddressesFistByte1;
     std::vector<IpAddress> ipAddressesFirstByte46Second70;
     std::vector<IpAddress> ipAddressesAnyByte46;
@@ -80,14 +64,9 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char const* argv[]) {
             std::cout << std::endl;
         }
 
-//        std::cout << "===================================" << std::endl;
         printRng(ipAddressesFistByte1);
-//        std::cout << "===================================" << std::endl;
         printRng(ipAddressesFirstByte46Second70);
-//        std::cout << "===================================" << std::endl;
         printRng(ipAddressesAnyByte46);
-
-        return 0;
 
         // 222.173.235.246
         // 222.130.177.64

@@ -3,9 +3,9 @@ cmake_minimum_required(VERSION 3.2)
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 
-project(ip-address-filtering VERSION ${PROJECT_VESRION})
+project(ip_filter VERSION ${PROJECT_VESRION})
 
-set(CLI "${PROJECT_NAME}-cli")
+set(CLI "${PROJECT_NAME}")
 
 include(GoogleTest)
 
