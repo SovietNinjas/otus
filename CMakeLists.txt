@@ -3,64 +3,68 @@ cmake_minimum_required(VERSION 3.2)
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 
-project(ip_filter VERSION ${PROJECT_VESRION})
+project(template VERSION ${PROJECT_VESRION})
 
-set(CLI "${PROJECT_NAME}")
+set(TARGET_CLIENT "${PROJECT_NAME}")
+set(TARGET_TESTS "${TARGET_CLIENT}-test")
 
 include(GoogleTest)
 
 configure_file(version.h.in version.h)
 
-add_executable(${CLI})
-add_library(proj_info lib.cpp)
-add_executable(test_version test_version.cpp)
-target_sources(${CLI} PRIVATE
-   "ip_address_filtering/ip_filter.cpp"
-   "ip_address_filtering/ip_address.cpp"
+add_executable(${TARGET_CLIENT})
+add_library(proj-info
+    "proj_info.cpp"
+)
+add_executable(${TARGET_TESTS}
+    "test_version.cpp"
+)
+target_sources(${TARGET_CLIENT} PRIVATE
+    "main.cpp"
 )
 
-set_target_properties(${CLI} proj_info test_version PROPERTIES
+set_target_properties(${TARGET_CLIENT} proj-info ${TARGET_TESTS} PROPERTIES
     CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
 )
-target_include_directories(proj_info
+target_include_directories(proj-info
     PRIVATE "${CMAKE_BINARY_DIR}"
 )
-target_include_directories(${CLI}
+target_include_directories(${TARGET_CLIENT}
     PRIVATE "${CMAKE_SOURCE_DIR}"
 )
 
-target_link_libraries(${CLI} PRIVATE
-    proj_info
+target_link_libraries(${TARGET_CLIENT} PRIVATE
+    proj-info
 )
-target_link_libraries(test_version
-    proj_info
+target_link_libraries(${TARGET_TESTS}
+    proj-info
     gtest
 )
 
 if (MSVC)
-    target_compile_options(${CLI} PRIVATE
+    target_compile_options(${TARGET_CLIENT} PRIVATE
         /W4
     )
-    target_compile_options(proj_info PRIVATE
+    target_compile_options(proj-info PRIVATE
         /W4
     )
-    target_compile_options(test_version PRIVATE
+    target_compile_options(${TARGET_TESTS} PRIVATE
         /W4
     )
 else ()
-    target_compile_options(${CLI} PRIVATE
+    target_compile_options(${TARGET_CLIENT} PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
-    target_compile_options(proj_info PRIVATE
+    target_compile_options(proj-info PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
-    target_compile_options(test_version PRIVATE
+    target_compile_options(${TARGET_TESTS} PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
 
-install(TARGETS ${CLI} RUNTIME DESTINATION bin)
+install(TARGETS ${TARGET_CLIENT} RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -74,4 +78,4 @@ include(CPack)
 
 enable_testing()
 
-add_test(test_version test_version)
+add_test(${TARGET_TESTS} ${TARGET_TESTS})

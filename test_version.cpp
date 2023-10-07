@@ -1,6 +1,6 @@
 #define BOOST_TEST_MODULE test_version
 
-#include "lib.h"
+#include "proj_info.h"
 
 #include <gtest/gtest.h>
 
