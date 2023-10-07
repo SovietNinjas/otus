@@ -3,61 +3,68 @@ cmake_minimum_required(VERSION 3.2)
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 
-project(helloworld VERSION ${PROJECT_VESRION})
+project(template VERSION ${PROJECT_VESRION})
 
-find_package(Boost COMPONENTS unit_test_framework REQUIRED)
+set(TARGET_CLIENT "${PROJECT_NAME}")
+set(TARGET_TESTS "${TARGET_CLIENT}-test")
+
+include(GoogleTest)
 
 configure_file(version.h.in version.h)
 
-add_executable(helloworld_cli main.cpp)
-add_library(helloworld lib.cpp)
-add_executable(test_version test_version.cpp)
+add_executable(${TARGET_CLIENT})
+add_library(proj-info
+    "proj_info.cpp"
+)
+add_executable(${TARGET_TESTS}
+    "test_version.cpp"
+)
+target_sources(${TARGET_CLIENT} PRIVATE
+    "main.cpp"
+)
 
-set_target_properties(helloworld_cli helloworld test_version PROPERTIES
-    CXX_STANDARD 14
+set_target_properties(${TARGET_CLIENT} proj-info ${TARGET_TESTS} PROPERTIES
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
 )
-target_include_directories(helloworld
+target_include_directories(proj-info
     PRIVATE "${CMAKE_BINARY_DIR}"
 )
-set_target_properties(test_version PROPERTIES
-    COMPILE_DEFINITIONS BOOST_TEST_DYN_LINK
-    INCLUDE_DIRECTORIES ${Boost_INCLUDE_DIR}
+target_include_directories(${TARGET_CLIENT}
+    PRIVATE "${CMAKE_SOURCE_DIR}"
 )
 
-target_link_libraries(helloworld_cli PRIVATE
-    helloworld
+target_link_libraries(${TARGET_CLIENT} PRIVATE
+    proj-info
 )
-target_link_libraries(test_version
-    ${Boost_LIBRARIES}
-    helloworld
+target_link_libraries(${TARGET_TESTS}
+    proj-info
+    gtest
 )
 
 if (MSVC)
-    target_compile_options(helloworld_cli PRIVATE
+    target_compile_options(${TARGET_CLIENT} PRIVATE
         /W4
     )
-    target_compile_options(helloworld PRIVATE
+    target_compile_options(proj-info PRIVATE
         /W4
     )
-    target_compile_options(test_version PRIVATE
+    target_compile_options(${TARGET_TESTS} PRIVATE
         /W4
     )
 else ()
-    target_compile_options(helloworld_cli PRIVATE
+    target_compile_options(${TARGET_CLIENT} PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
-    target_compile_options(helloworld PRIVATE
+    target_compile_options(proj-info PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
-    target_compile_options(test_version PRIVATE
+    target_compile_options(${TARGET_TESTS} PRIVATE
         -Wall -Wextra -pedantic -Werror
     )
 endif()
 
-
-
-install(TARGETS helloworld_cli RUNTIME DESTINATION bin)
+install(TARGETS ${TARGET_CLIENT} RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
 
@@ -71,4 +78,4 @@ include(CPack)
 
 enable_testing()
 
-add_test(test_version test_version)
+add_test(${TARGET_TESTS} ${TARGET_TESTS})
