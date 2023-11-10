@@ -7,7 +7,7 @@ int main(int, char**) {
     int a, b;
 
     std::cin >> a >> b;
-    std::cout << a + b << std::endl;
+    std::cout << b - 1 << ' ' << a - 1 << std::endl;
 
     return 0;
 }
