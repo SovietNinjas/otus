@@ -12,9 +12,10 @@ void printSqrt(std::istream& is) {
 }
 
 int main(int, char**) {
-    std::cout << std::fixed << std::setprecision(4);
+    int a, b, c;
 
-    printSqrt(std::cin);
+    std::cin >> a >> b >> c;
+    std::cout << a * b * c * 2 << std::endl;
 
     return 0;
 }
