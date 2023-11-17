@@ -1,22 +1,17 @@
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 
 int main(int, char**) {
-    int a, b, c;
+    int n, k;
 
-    std::cin >> a >> b >> c;
+    std::cin >> n >> k;
 
-//    if (b != 0) {
-//        if (c == 1) {
-//            std::cout << a - b - c << std::endl;
-//        } else {
-//            std::cout << a - b * c << std::endl;
-//        }
-//    } else {
-//        std::cout << -c << std::endl;
-//    }
-
-    std::cout << std::min(a - b * c, a - b - c) << std::endl;
+    if (auto res = std::ceil(n * 2. / k); res < 2) {
+        std::cout << 2 << std::endl;
+    } else {
+        std::cout << res << std::endl;
+    }
 
     return 0;
 }
