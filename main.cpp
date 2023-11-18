@@ -1,22 +1,16 @@
 #include <iostream>
-#include <numeric>
+#include <array>
 
 int main(int, char**) {
-    int n, k;
+    std::array<std::pair<int, int>, 3> buff;
+    std::cin >> buff[0].first >> buff[0].second >> buff[1].first >> buff[1].second >> buff[2].first >> buff[2].second;
 
-    std::cin >> k >> n;
+    auto strawberriesHeight = buff[1].first - buff[2].first;
 
-    int left = 0;
-    for (int i = 0; i < n; ++i) {
-        int tmp;
-        std::cin >> tmp;
-        left += tmp - k;
-        if (left < 0) {
-            left = 0;
-        }
-    }
+    auto second = strawberriesHeight - (buff[0].first - buff[2].first);
+    auto first = strawberriesHeight - second;
 
-    std::cout << left << std::endl;
+    std::cout << first << ' ' << second << std::endl;
 
     return 0;
 }
