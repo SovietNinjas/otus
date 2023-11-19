@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 
-project(template VERSION ${PROJECT_VESRION})
+project(print_ip VERSION ${PROJECT_VESRION})
 
 set(TARGET_CLIENT "${PROJECT_NAME}")
 set(TARGET_TESTS "${TARGET_CLIENT}-test")
