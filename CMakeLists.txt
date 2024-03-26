@@ -21,6 +21,7 @@ set_target_properties(${TARGET_CLIENT} ${TARGET_TESTS}
 target_include_directories(${TARGET_CLIENT} PRIVATE "${CMAKE_SOURCE_DIR}")
 
 target_link_libraries(${TARGET_TESTS} gtest)
+target_sources(${TARGET_CLIENT} PRIVATE "main.cpp")
 
 if(MSVC)
   target_compile_options(${TARGET_CLIENT} PRIVATE /W4)
