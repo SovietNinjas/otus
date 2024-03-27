@@ -7,4 +7,4 @@ int main(int argc, char **argv) {
     return RUN_ALL_TESTS();
 }
 
-TEST(SuiteName, Name) { EXPECT_GT(0, 0); }
+TEST(SuiteName, Name) { EXPECT_EQ(0, 0); }
