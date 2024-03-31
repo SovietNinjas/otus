@@ -9,21 +9,21 @@ class Matrix {
    public:
     struct ThirdStage {
         ValueT& operator=(ValueT val) {
-            valRef_ = val;
-            return valRef_;
+            *pVal_ = val;
+            return *pVal_;
         }
 
-       private:
-        ValueT& valRef_;
+        auto operator<=>(const ValueT& other) const { return *pVal_ <=> other; }
+        bool operator==(const ValueT& other) const { return *pVal_ == other; }
+        ValueT* pVal_ = nullptr;
     };
 
     struct SecondStage {
-        ValueT& operator[](std::size_t inx) {
-            auto& retVal = dv_;
-            if (d.contains(inx)) {
-                retVal = d[inx];
+        ThirdStage& operator[](std::size_t inx) {
+            if (!d.contains(inx)) {
+                return d[inx];
             }
-            return retVal;
+            return dv1_;
         }
 
         // const ValueT& operator[](std::size_t inx) const {
@@ -38,6 +38,7 @@ class Matrix {
 
        private:
         ValueT dv_ = DefaultValue;
+        ThirdStage dv1_ = {&dv_};
         std::unordered_map<std::size_t, ThirdStage> d;
     };
 
@@ -73,6 +74,8 @@ int main(int, char**) {
     //     std::tie(x, y, v) = c;
     //     std::cout << x << y << v << std::endl;
     // }
+
+    std::cout << "ok" << std::endl;
 
     return 0;
 }
