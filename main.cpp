@@ -7,24 +7,33 @@
 template <typename ValueT, ValueT DefaultValue>
 class Matrix {
    public:
+    struct SecondStage;
+
     struct ThirdStage {
-        ValueT& operator=(ValueT val) {
-            *pVal_ = val;
-            return *pVal_;
+        ThirdStage operator=(ValueT val) {
+            currentVal_ = val;
+            return pos.ref->setForce(pos.inx, *this);
         }
 
-        auto operator<=>(const ValueT& other) const { return *pVal_ <=> other; }
-        bool operator==(const ValueT& other) const { return *pVal_ == other; }
-        ValueT* pVal_ = nullptr;
+        auto operator<=>(const ValueT& other) const { return currentVal_ <=> other; }
+        bool operator==(const ValueT& other) const { return currentVal_ == other; }
+
+        ValueT currentVal_ = DefaultValue;
+        struct {
+            SecondStage* ref;
+            std::size_t inx = 0;
+        } pos;
     };
 
     struct SecondStage {
-        ThirdStage& operator[](std::size_t inx) {
-            if (!d.contains(inx)) {
+        ThirdStage operator[](std::size_t inx) {
+            if (d.contains(inx)) {
                 return d[inx];
             }
-            return dv1_;
+            return ThirdStage{.pos = {this, inx}};
         }
+
+        ThirdStage setForce(std::size_t inx, const ThirdStage& val) { return d[inx] = val; }
 
         // const ValueT& operator[](std::size_t inx) const {
         //     if (d.contains(inx)) {
@@ -37,8 +46,6 @@ class Matrix {
         inline std::size_t size() const { return d.size(); }
 
        private:
-        ValueT dv_ = DefaultValue;
-        ThirdStage dv1_ = {&dv_};
         std::unordered_map<std::size_t, ThirdStage> d;
     };
 
