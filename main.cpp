@@ -8,6 +8,7 @@ template <typename ValueT, ValueT DefaultValue>
 class Matrix {
    public:
     struct SecondStage;
+    using MapT = std::unordered_map<std::size_t, SecondStage>;
 
     struct ThirdStage {
         ThirdStage operator=(ValueT val) {
@@ -58,8 +59,29 @@ class Matrix {
                                [](auto acc, const auto& secondStage) { return acc + secondStage.second.size(); });
     }
 
+    class View {
+       public:
+        View(MapT& map) : mapView_(map) {}
+        View& begin() { return *this; }
+        View& end() { return *this; }
+
+        auto operator*() {
+            return std::make_tuple(currPos->first, currPos_->second.)
+        }
+
+       private:
+        MapT& mapView_;
+        MapT::const_iterator currPos_ = mapView_.cbegin();
+    };
+
+    auto begin() {
+        return View(data_).begin();
+
+    }
+    auto end() { return view_.end(); }
+
    private:
-    std::unordered_map<std::size_t, SecondStage> data_{};
+    MapT data_{};
 };
 
 int main(int, char**) {
@@ -74,13 +96,13 @@ int main(int, char**) {
     assert(matrix.size() == 1);
     // выведется одна строка
     // 100100314
-    // for (auto c : matrix) {
-    //     int x;
-    //     int y;
-    //     int v;
-    //     std::tie(x, y, v) = c;
-    //     std::cout << x << y << v << std::endl;
-    // }
+    for (auto c : matrix) {
+        int x;
+        int y;
+        int v;
+        std::tie(x, y, v) = c;
+        std::cout << x << y << v << std::endl;
+    }
 
     std::cout << "ok" << std::endl;
 
