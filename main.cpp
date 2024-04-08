@@ -61,14 +61,22 @@ class Matrix {
         View(Position pos) : pos_(pos) {}
 
         std::tuple<int, int, ValueT> operator*() const {
+            static auto counter = 0u;
+            std::cout << ++counter << std::endl;
+            std::cout << pos_.first->first << ' ' << pos_.second->first << ' ' << pos_.second->second.currentVal_
+                      << std::endl;
             return std::make_tuple(pos_.first->first, pos_.second->first, pos_.second->second.currentVal_);
         }
 
-        bool operator!=(const View& other) const {
-            return std::tie(pos_.first, pos_.second) != std::tie(other.pos_.first, other.pos_.second);
+        bool operator==(const View& other) const {
+            // auto distance = std::distance(pos_.first, other.pos_.first);
+            // return distance == 0;
+            return pos_.first== other.pos_.first;
         }
 
         View& operator++() {
+            auto pos = pos_.first;
+            [[maybe_unused]]auto dist1 = std::distance(pos, pos_.first);
             if (++pos_.second == pos_.first->second.d.cend()) {
                 ++pos_.first;
                 pos_.second = pos_.first->second.d.cbegin();
@@ -80,11 +88,11 @@ class Matrix {
         Position pos_{};
     };
 
-    View begin() { return View({data_.cbegin(), data_[0].d.cbegin()}); }
-    View end() {
-        auto it = std::prev(cend(data_));
-        return View({it, it->second.d.cend()});
+    View begin() const {
+        const auto it = data_.cbegin();
+        return View({it, it->second.d.cbegin()});
     }
+    View end() const { return View({.first = cend(data_)}); }
 
    private:
     MapT data_{};
@@ -100,6 +108,13 @@ int main(int, char**) {
     matrix[100][100] = 314;
     assert(matrix[100][100] == 314);
     assert(matrix.size() == 1);
+
+    auto begin = matrix.begin();
+    ++begin;
+    auto end = matrix.end();
+    assert(begin == end);
+
+    // ((matrix[100][100] = 314) = 0) = 217;
     // выведется одна строка
     // 100100314
     for (auto c : matrix) {
