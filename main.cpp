@@ -27,6 +27,7 @@ class Matrix {
     };
 
     struct SecondStage {
+        using DataT = std::unordered_map<std::size_t, ThirdStage>;
         ThirdStage operator[](std::size_t inx) {
             if (d.contains(inx)) {
                 return d[inx];
@@ -36,18 +37,9 @@ class Matrix {
 
         ThirdStage setForce(std::size_t inx, const ThirdStage& val) { return d[inx] = val; }
 
-        // const ValueT& operator[](std::size_t inx) const {
-        //     if (d.contains(inx)) {
-        //         return d[inx];
-        //     } else {
-        //         return dv_;
-        //     }
-        // }
-
         inline std::size_t size() const { return d.size(); }
 
-       private:
-        std::unordered_map<std::size_t, ThirdStage> d;
+        DataT d;
     };
 
     SecondStage& operator[](std::size_t inx) { return data_[inx]; }
@@ -61,24 +53,38 @@ class Matrix {
 
     class View {
        public:
-        View(MapT& map) : mapView_(map) {}
-        View& begin() { return *this; }
-        View& end() { return *this; }
+        struct Position {
+            MapT::const_iterator first{};
+            SecondStage::DataT::const_iterator second{};
+        };
 
-        auto operator*() {
-            return std::make_tuple(currPos->first, currPos_->second.)
+        View(Position pos) : pos_(pos) {}
+
+        std::tuple<int, int, ValueT> operator*() const {
+            return std::make_tuple(pos_.first->first, pos_.second->first, pos_.second->second.currentVal_);
+        }
+
+        bool operator!=(const View& other) const {
+            return std::tie(pos_.first, pos_.second) != std::tie(other.pos_.first, other.pos_.second);
+        }
+
+        View& operator++() {
+            if (++pos_.second == pos_.first->second.d.cend()) {
+                ++pos_.first;
+                pos_.second = pos_.first->second.d.cbegin();
+            }
+            return *this;
         }
 
        private:
-        MapT& mapView_;
-        MapT::const_iterator currPos_ = mapView_.cbegin();
+        Position pos_{};
     };
 
-    auto begin() {
-        return View(data_).begin();
-
+    View begin() { return View({data_.cbegin(), data_[0].d.cbegin()}); }
+    View end() {
+        auto it = std::prev(cend(data_));
+        return View({it, it->second.d.cend()});
     }
-    auto end() { return view_.end(); }
 
    private:
     MapT data_{};
