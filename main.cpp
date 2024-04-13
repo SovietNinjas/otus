@@ -6,96 +6,71 @@
 
 template <typename ValueT, ValueT DefaultValue>
 class Matrix {
-   public:
-    struct SecondStage;
-    using MapT = std::unordered_map<std::size_t, SecondStage>;
-
-    struct ThirdStage {
-        ThirdStage operator=(ValueT val) {
-            currentVal_ = val;
-            return pos.ref->setForce(pos.inx, *this);
-        }
-
-        auto operator<=>(const ValueT& other) const { return currentVal_ <=> other; }
-        bool operator==(const ValueT& other) const { return currentVal_ == other; }
-
-        ValueT currentVal_ = DefaultValue;
-        struct {
-            SecondStage* ref;
-            std::size_t inx = 0;
-        } pos;
-    };
-
-    struct SecondStage {
-        using DataT = std::unordered_map<std::size_t, ThirdStage>;
-        ThirdStage operator[](std::size_t inx) {
-            if (d.contains(inx)) {
-                return d[inx];
-            }
-            return ThirdStage{.pos = {this, inx}};
-        }
-
-        ThirdStage setForce(std::size_t inx, const ThirdStage& val) { return d[inx] = val; }
-
-        inline std::size_t size() const { return d.size(); }
-
-        DataT d;
-    };
-
-    SecondStage& operator[](std::size_t inx) { return data_[inx]; }
-
-    // const SecondStage& operator[](std::size_t inx) const { return data_[inx]; }
-
-    inline std::size_t size() const {
-        return std::accumulate(std::cbegin(data_), std::cend(data_), static_cast<size_t>(0),
-                               [](auto acc, const auto& secondStage) { return acc + secondStage.second.size(); });
-    }
-
-    class View {
-       public:
-        struct Position {
-            MapT::const_iterator first{};
-            SecondStage::DataT::const_iterator second{};
-        };
-
-        View(Position pos) : pos_(pos) {}
-
-        std::tuple<int, int, ValueT> operator*() const {
-            static auto counter = 0u;
-            std::cout << ++counter << std::endl;
-            std::cout << pos_.first->first << ' ' << pos_.second->first << ' ' << pos_.second->second.currentVal_
-                      << std::endl;
-            return std::make_tuple(pos_.first->first, pos_.second->first, pos_.second->second.currentVal_);
-        }
-
-        bool operator==(const View& other) const {
-            // auto distance = std::distance(pos_.first, other.pos_.first);
-            // return distance == 0;
-            return pos_.first== other.pos_.first;
-        }
-
-        View& operator++() {
-            auto pos = pos_.first;
-            [[maybe_unused]]auto dist1 = std::distance(pos, pos_.first);
-            if (++pos_.second == pos_.first->second.d.cend()) {
-                ++pos_.first;
-                pos_.second = pos_.first->second.d.cbegin();
-            }
-            return *this;
+   private:
+    using Key = std::pair<std::size_t, std::size_t>;
+    struct Hash {
+        std::size_t operator()(Key key) const noexcept {
+            const auto val = h(key.second);
+            return (h(key.first) ^ val) + val;
         }
 
        private:
-        Position pos_{};
+        std::hash<std::size_t> h{};
     };
 
-    View begin() const {
-        const auto it = data_.cbegin();
-        return View({it, it->second.d.cbegin()});
-    }
-    View end() const { return View({.first = cend(data_)}); }
+   public:
+    using BufferT = std::unordered_map<Key, ValueT, Hash>;
+
+    class Wrapper {
+       public:
+        Wrapper(std::size_t pos, BufferT& buff) : pos_({pos, 0}), buff_(buff) {}
+
+        Wrapper operator[](std::size_t inx) {
+            pos_.second = inx;
+
+            if (buff_.contains(pos_)) {
+                value_ = buff_[pos_];
+            }
+
+            return *this;
+        }
+
+        Wrapper operator=(const ValueT& val) {
+            buff_[pos_] = val;
+            return *this;
+        }
+
+        bool operator==(const ValueT& value) const noexcept { return value == value_; }
+
+       private:
+        ValueT value_ = DefaultValue;
+        Key pos_{};
+        BufferT& buff_;
+    };
+
+    class Iterator {
+       public:
+        using IteratorT = BufferT::const_iterator;
+        explicit Iterator(IteratorT it) : it_(it) {}
+
+        IteratorT& operator++() { return ++it_; }
+        auto operator<=>(const Iterator&) const noexcept = default;
+        std::tuple<int, int, ValueT> operator*() const {
+            return std::make_tuple(it_->first.first, it_->first.second, it_->second);
+        }
+
+       private:
+        IteratorT it_{};
+    };
+
+    Iterator begin() const noexcept { return Iterator(data_.cbegin()); }
+    Iterator end() const noexcept { return Iterator(data_.cend()); }
+
+    Wrapper operator[](std::size_t inx) { return Wrapper(inx, data_); }
+    std::size_t size() const noexcept { return data_.size(); }
 
    private:
-    MapT data_{};
+    BufferT data_{};
 };
 
 int main(int, char**) {
@@ -109,14 +84,10 @@ int main(int, char**) {
     assert(matrix[100][100] == 314);
     assert(matrix.size() == 1);
 
-    auto begin = matrix.begin();
-    ++begin;
-    auto end = matrix.end();
-    assert(begin == end);
+    ((matrix[100][100] = 314) = 0) = 217;
 
-    // ((matrix[100][100] = 314) = 0) = 217;
     // выведется одна строка
-    // 100100314
+    // 100100217
     for (auto c : matrix) {
         int x;
         int y;
@@ -129,23 +100,3 @@ int main(int, char**) {
 
     return 0;
 }
-
-// Спроектировать 2 - мерную разреженную бесконечную матрицу, заполненную значениями по умолчанию.
-
-// Матрица должна хранить только занятые элементы - значения которых хотя бы раз присваивались.
-// Присвоение в ячейку значения по умолчанию освобождает ячейку.
-
-// Необходимо уметь отвечать на вопрос - сколько ячеек реально занято? Необходимо уметь проходить по всем занятым
-// ячейкам. Порядок не имеет значения.Возвращается позиция ячейки и ее значение.При чтении элемента из свободной ячейки
-// возвращать значение по умолчанию.При запуске программы необходимо создать матрицу с пустым значением 0, заполнить
-// главную диагональ матрицы(от[0, 0] до[9, 9]) значениями от 0 до 9. Второстепенную диагональ(от[0, 9] до[9, 0])
-// значениями от 9 до 0. Необходимо вывести фрагмент матрицы от[1, 1] до[8, 8]. Между столбцами пробел.Каждая строка
-// матрицы на новой строке консоли.Вывести количество занятых ячеек.Вывести все занятые ячейки вместе со своими
-// позициями.Опционально реализовать N
-// - мерную матрицу.Опционально реализовать каноническую форму оператора `=`,
-// допускающую выражения `((matrix[100][100] = 314) = 0) = 217`
-// Самоконтроль - индексация оператором `[]` -
-// количество занятых ячеек должно быть
-// 18 после выполнения примера выше Проверка Задание считается выполненным успешно,
-// если после анализа кода, установки пакета и запуска приложения появился фрагмент матрицы,
-// количество ячеек и список всех значений
