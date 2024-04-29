@@ -5,21 +5,25 @@ set(PATCH_VERSION
     CACHE INTERNAL "Patch version")
 set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 
-project(template VERSION ${PROJECT_VESRION})
+project(join_server VERSION ${PROJECT_VESRION})
 
 set(TARGET_CLIENT "${PROJECT_NAME}")
 set(TARGET_TESTS "${TARGET_CLIENT}-test")
-
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+find_package(Boost REQUIRED)
 include(GoogleTest)
 
-add_executable(${TARGET_CLIENT})
+add_executable(${TARGET_CLIENT} "main.cpp" "server.cpp" "session.cpp"
+                                "utils.cpp")
 add_executable(${TARGET_TESTS} "test_version.cpp")
-target_sources(${TARGET_CLIENT} PRIVATE "main.cpp")
 
 set_target_properties(${TARGET_CLIENT} ${TARGET_TESTS}
                       PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
 target_include_directories(${TARGET_CLIENT} PRIVATE "${CMAKE_SOURCE_DIR}")
 
+target_link_libraries(${TARGET_CLIENT} PRIVATE Threads::Threads
+                                               ${Boost_LIBRARIES})
 target_link_libraries(${TARGET_TESTS} gtest)
 
 if(MSVC)
