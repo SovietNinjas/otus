@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/asio.hpp>
+#include <optional>
 
 class Session : public std::enable_shared_from_this<Session> {
    private:
