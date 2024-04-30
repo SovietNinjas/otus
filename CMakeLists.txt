@@ -5,7 +5,7 @@ set(PATCH_VERSION
     CACHE INTERNAL "Patch version")
 set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 
-project(template VERSION ${PROJECT_VESRION})
+project(mapreduce VERSION ${PROJECT_VESRION})
 
 set(TARGET_CLIENT "${PROJECT_NAME}")
 set(TARGET_TESTS "${TARGET_CLIENT}-test")
@@ -14,7 +14,7 @@ include(GoogleTest)
 
 add_executable(${TARGET_CLIENT})
 add_executable(${TARGET_TESTS} "test_version.cpp")
-target_sources(${TARGET_CLIENT} PRIVATE "main.cpp")
+target_sources(${TARGET_CLIENT} PRIVATE "main.cpp" "mapreduce.cpp" "utils.cpp")
 
 set_target_properties(${TARGET_CLIENT} ${TARGET_TESTS}
                       PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
