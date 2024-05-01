@@ -16,18 +16,16 @@ find_package(Threads REQUIRED)
 add_library(
   async SHARED
   async.cpp
-  cmd.cpp
   utils.cpp
+  file_logger.cpp
   writer_thread.cpp
-  writers.cpp
-  observer.h
-  stdafx.h)
+  )
 
 add_executable(${TARGET_CLIENT})
 add_executable(${TARGET_TESTS} "test_version.cpp")
 target_sources(${TARGET_CLIENT} PRIVATE "main.cpp")
 
-set_target_properties(${TARGET_CLIENT} ${TARGET_TESTS}
+set_target_properties(${TARGET_CLIENT} ${TARGET_TESTS} async
                       PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
 target_include_directories(${TARGET_CLIENT} PRIVATE "${CMAKE_SOURCE_DIR}")
 

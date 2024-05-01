@@ -1,9 +1,9 @@
 #pragma once
-//-----------------------------------------------------------------------------
-#include "stdafx.h"
-//-----------------------------------------------------------------------------
-namespace utils
-{
-    std::vector<std::string> split_string(const std::string& s, char sep);
-}
-//-----------------------------------------------------------------------------
+
+#include <string>
+#include <vector>
+
+namespace utils {
+std::vector<std::string_view> splitString(std::string_view sv, char sep);
+std::string getCurrentTime();
+}  // namespace utils

@@ -1,57 +1,43 @@
-#include "cmd.h"
-#include "writer_thread.h"
 #include "async.h"
-//-----------------------------------------------------------------------------
-struct AsyncHandle
-{
-    AsyncHandle(unsigned int bulk)
-        : CMD(bulk),
-        OutConsole(&CMD),
-        OutFile(&CMD)
-    {
 
+#include <thread>
+
+#include "cmd_mgr.h"
+#include "console_logger.h"
+#include "file_logger.h"
+#include "writer_thread.h"
+
+struct AsyncHandle {
+    AsyncHandle(unsigned int bulk) : cmd(bulk) {
+        cmd.addObserver(&fileLogger_);
+        cmd.addObserver(&consoleLogger_);
     }
 
-    cmd CMD; //Инициализируется первым, поэтому в конструкторе можем передать в писателей ссылку на этот CMD
-
-private:
-    WriterConsole OutConsole;
-    WriterFile OutFile;
+    FileLogger fileLogger_{};
+    ConsoleLogger consoleLogger_{};
+    CommandMgr cmd;
 };
-//-----------------------------------------------------------------------------
-async::handle_t async::connect(unsigned int bulk)
-{
-    //Запускаем потоки только если они ещё не были запущены
-    if (!WriterThread::Instance().IsRun())
-    {
-        //Для примера возьмем столько потоков, сколько вообще доступно.
-        //И если вдруг функция вернула 0, просто выйдем
-        auto thread_count = std::thread::hardware_concurrency();
-        if (thread_count == 0)
-        {
+
+async::handle_t async::connect(unsigned int bulk) {
+    if (!WriterThread::instance().isRun()) {
+        auto threadCount = std::thread::hardware_concurrency();
+        if (threadCount == 0) {
             return nullptr;
         }
 
-        WriterThread::Instance().Start(thread_count);
+        WriterThread::instance().start(threadCount);
     }
 
     return (new AsyncHandle(bulk));
 }
-//-----------------------------------------------------------------------------
-void async::receive(handle_t handle, const char* data, size_t size)
-{
-    AsyncHandle *h = static_cast<AsyncHandle*>(handle);
-    if (!h)
-    {
-        //Возможно имеет смысл бросить исключение...
+
+void async::receive(handle_t handle, const char* data, size_t size) {
+    auto h = static_cast<AsyncHandle*>(handle);
+    if (!h) {
         return;
     }
 
-    h->CMD.ReadConsole(std::string(data, size));
+    h->cmd.pushCmd(std::string(data, size));
 }
-//-----------------------------------------------------------------------------
-void async::disconnect(handle_t handle)
-{
-    delete handle;
-}
-//-----------------------------------------------------------------------------
+
+void async::disconnect(handle_t handle) { delete static_cast<AsyncHandle*>(handle); }

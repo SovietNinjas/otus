@@ -1,38 +1,36 @@
 #include "utils.h"
-//-----------------------------------------------------------------------------
-std::vector<std::string> utils::split_string(const std::string& s, char sep)
-{
-    std::vector<std::string> v;
 
-    if (!s.empty())
-    {
-        size_t pos = 0, last_pos = 0;
-        while ((pos = s.find(sep, last_pos)) != std::string::npos)
-        {
-            if (pos != 0)
-            {
-                if ((pos - last_pos) > 0)
-                {
-                    v.emplace_back(s.substr(last_pos, pos - last_pos));
+#include <chrono>
+
+std::vector<std::string_view> utils::splitString(std::string_view sv, char sep) {
+    std::vector<std::string_view> v;
+
+    if (!sv.empty()) {
+        size_t pos = 0, lastPos = 0;
+        while ((pos = sv.find(sep, lastPos)) != std::string::npos) {
+            if (pos != 0) {
+                if ((pos - lastPos) > 0) {
+                    v.emplace_back(sv.substr(lastPos, pos - lastPos));
                 }
-                last_pos = ++pos;
-            }
-            else
-            {
-                ++last_pos;
+                lastPos = ++pos;
+            } else {
+                ++lastPos;
             }
         }
 
-        if (pos == std::string::npos)
-        {
-            size_t Size = s.size();
-            if (last_pos < Size)
-            {
-                v.emplace_back(s.substr(last_pos, Size - last_pos));
+        if (pos == std::string::npos) {
+            size_t Size = sv.size();
+            if (lastPos < Size) {
+                v.emplace_back(sv.substr(lastPos, Size - lastPos));
             }
         }
     }
 
     return v;
 }
-//-----------------------------------------------------------------------------
+
+std::string utils::getCurrentTime() {
+    using namespace std::chrono;
+    auto time = system_clock::to_time_t(system_clock::now());
+    return std::to_string(time);
+}

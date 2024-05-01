@@ -1,7 +1,7 @@
 #pragma once
-//-----------------------------------------------------------------------------
+
 #include <cstddef>
-//-----------------------------------------------------------------------------
+
 namespace async
 {
     using handle_t = void*;
@@ -10,4 +10,4 @@ namespace async
     void receive(handle_t handle, const char* data, size_t size);
     void disconnect(handle_t handle);
 }
-//-----------------------------------------------------------------------------
+

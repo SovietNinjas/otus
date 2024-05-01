@@ -1,9 +1,10 @@
-#include "cmd.h"
-#include "writer_thread.h"
+#include <iostream>
+
 #include "async.h"
-//-----------------------------------------------------------------------------
-int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv)
-{
+#include "cmd_mgr.h"
+#include "writer_thread.h"
+
+int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv) {
     unsigned int bulk = 5;
 
     async::handle_t h1 = async::connect(bulk);
@@ -19,4 +20,3 @@ int main([[maybe_unused]]int argc, [[maybe_unused]]char** argv)
 
     return 0;
 }
-//-----------------------------------------------------------------------------
