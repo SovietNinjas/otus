@@ -5,21 +5,23 @@ set(PATCH_VERSION
     CACHE INTERNAL "Patch version")
 set(PROJECT_VESRION 0.0.${PATCH_VERSION})
 
-project(template VERSION ${PROJECT_VESRION})
+project(task14 VERSION ${PROJECT_VESRION})
 
 set(TARGET_CLIENT "${PROJECT_NAME}")
 set(TARGET_TESTS "${TARGET_CLIENT}-test")
 
 include(GoogleTest)
+find_package(Boost REQUIRED COMPONENTS program_options)
 
 add_executable(${TARGET_CLIENT})
 add_executable(${TARGET_TESTS} "test_version.cpp")
-target_sources(${TARGET_CLIENT} PRIVATE "main.cpp")
+target_sources(${TARGET_CLIENT} PRIVATE "main.cpp" accuracy_finder.cpp mlp_classifier.cpp helpers.cpp)
 
 set_target_properties(${TARGET_CLIENT} ${TARGET_TESTS}
                       PROPERTIES CXX_STANDARD 20 CXX_STANDARD_REQUIRED ON)
-target_include_directories(${TARGET_CLIENT} PRIVATE "${CMAKE_SOURCE_DIR}")
+target_include_directories(${TARGET_CLIENT} PRIVATE "${CMAKE_SOURCE_DIR}" ${Boost_INCLUDE_DIR})
 
+target_link_libraries(${TARGET_CLIENT} ${Boost_LIBRARIES})
 target_link_libraries(${TARGET_TESTS} gtest)
 
 if(MSVC)
