@@ -40,6 +40,8 @@ class CommandMgr : public LoggerObservable {
 
     void addObserver(LoggerObserver* observer) override { observersList_.push_back(observer); }
 
+    void flush() { endBlockBehavior_(); }
+
    private:
     inline void endBlockBehavior_() {
         if (cmdCounter_ != 0) {

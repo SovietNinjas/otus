@@ -18,6 +18,8 @@ struct AsyncHandle {
     CommandMgr cmd;
 };
 
+inline static AsyncHandle* handleCast(async::handle_t handle) { return static_cast<AsyncHandle*>(handle); }
+
 async::handle_t async::connect(unsigned int bulk) {
     if (!WriterThread::instance().isRun()) {
         auto threadCount = std::thread::hardware_concurrency();
@@ -32,12 +34,9 @@ async::handle_t async::connect(unsigned int bulk) {
 }
 
 void async::receive(handle_t handle, const char* data, size_t size) {
-    auto h = static_cast<AsyncHandle*>(handle);
-    if (!h) {
-        return;
-    }
-
-    h->cmd.pushCmd(std::string(data, size));
+    handleCast(handle)->cmd.pushCmd(std::string(data, size));
 }
 
 void async::disconnect(handle_t handle) { delete static_cast<AsyncHandle*>(handle); }
+
+void async::flush(handle_t handle) { /*handleCast(handle)->cmd.flush();*/ }

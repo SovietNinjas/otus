@@ -1,8 +1,8 @@
 #pragma once
 
 #include <algorithm>
-#include <iostream>
 #include <future>
+#include <iostream>
 
 #include "logger_observer.h"
 #include "writer_thread.h"
@@ -14,7 +14,7 @@ class ConsoleLogger : public LoggerObserver {
 
     inline void release() override {
         static auto print = [](const std::string& s) { std::cout << s; };
-        std::async(std::launch::async, print, oss_.str());
+        (void)std::async(std::launch::async, std::ref(print), oss_.str());
     }
 
    private:
