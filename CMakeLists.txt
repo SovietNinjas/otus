@@ -15,7 +15,7 @@ find_package(Boost REQUIRED)
 include(GoogleTest)
 
 add_executable(${TARGET_CLIENT} "main.cpp" "server.cpp" "session.cpp"
-                                "utils.cpp")
+                                "utils.cpp" "database.cpp")
 add_executable(${TARGET_TESTS} "test_version.cpp")
 
 set_target_properties(${TARGET_CLIENT} ${TARGET_TESTS}
